@@ -84,30 +84,10 @@ void vApplicationTickHook(void) {}
  */
 void create_hello_world_screen()
 {
-    /* Create a new screen object */
-    lv_obj_t *screen = lv_obj_create(NULL);
-    if (screen == NULL){
-        printf("Error: Failed to create screen object\n");
-        /* Return if screen creation fails */
-        return;
-    }
-
-    /* Create a new label object on the screen */
-    lv_obj_t *label = lv_label_create(screen);
-    if (label == NULL){
-        printf("Error: Failed to create label object\n");
-        /* Return if label creation fails */
-        return;
-    }
-
-    /* Set the text of the label */
-    lv_label_set_text(label, "Hello LVGL");
-
-    /* Align the label to the center of the screen */
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-    /* Load the created screen and make it visible */
-    lv_scr_load(screen);
+    lv_obj_t*obj1=lv_obj_create(lv_scr_act());
+    lv_obj_set_size(obj1, 320, 480);
+    lv_obj_set_pos(obj1, 0, 0);
+    lv_obj_t*obj2=lv_obj_create(obj1);
 }
 
 // ........................................................................................................
