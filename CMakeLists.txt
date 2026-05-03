@@ -8,10 +8,16 @@ set(LVGL_PRO_PROJECT_DIR
     ""
     CACHE PATH "Path to LVGL Pro Project folder")
 
-option(USE_FREERTOS "Enable FreeRTOS" OFF) # Turn this on to enable FreeRTOS
+option(USE_FREERTOS "Enable FreeRTOS" ON) # Keep this in sync with LV_USE_OS in lv_conf.h
 
 if(USE_FREERTOS)
     message(STATUS "FreeRTOS is enabled")
+
+    set(FREERTOS_INCLUDE_DIRS
+        ${PROJECT_SOURCE_DIR}/FreeRTOS/include
+        ${PROJECT_SOURCE_DIR}/FreeRTOS/portable/ThirdParty/GCC/Posix
+        ${PROJECT_SOURCE_DIR}/config
+    )
 
     # FreeRTOS integration when USE_FREERTOS is enabled
     add_library(freertos_config INTERFACE)
@@ -22,9 +28,7 @@ if(USE_FREERTOS)
     add_subdirectory(FreeRTOS)
 
     # FreeRTOS-specific include directories
-    include_directories(${PROJECT_SOURCE_DIR}/FreeRTOS/include)
-    include_directories(${PROJECT_SOURCE_DIR}/FreeRTOS/portable/ThirdParty/GCC/Posix)
-    include_directories(${PROJECT_SOURCE_DIR}/config)
+    include_directories(${FREERTOS_INCLUDE_DIRS})
 
     # Add FreeRTOS sources
     file(GLOB FREERTOS_SOURCES
@@ -68,6 +72,18 @@ add_compile_definitions($<$<BOOL:${LV_USE_FFMPEG}>:LV_USE_FFMPEG=1>)
 # Add LVGL subdirectory
 add_subdirectory(lvgl)
 target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS})
+
+if(USE_FREERTOS)
+    target_include_directories(lvgl PUBLIC ${FREERTOS_INCLUDE_DIRS})
+
+    if(TARGET lvgl_demos)
+        target_include_directories(lvgl_demos PUBLIC ${FREERTOS_INCLUDE_DIRS})
+    endif()
+
+    if(TARGET lvgl_examples)
+        target_include_directories(lvgl_examples PUBLIC ${FREERTOS_INCLUDE_DIRS})
+    endif()
+endif()
 
 set(MAIN_SOURCES src/mouse_cursor_icon.c src/hal/hal.c)
 set(MAIN_LIBS lvgl lvgl::examples lvgl::demos lvgl::thorvg ${SDL2_LIBRARIES})
