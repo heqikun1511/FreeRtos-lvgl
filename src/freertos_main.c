@@ -84,10 +84,12 @@ void vApplicationTickHook(void) {}
  */
 void create_hello_world_screen()
 {
+  static lv_style_t style;
+    lv_style_init(&style);
+    lv_style_set_bg_color(&style, lv_color_hex(0xfb3b3b));
+
     lv_obj_t*obj1=lv_obj_create(lv_scr_act());
-    lv_obj_set_size(obj1, 320, 480);
-    lv_obj_set_pos(obj1, 0, 0);
-    lv_obj_t*obj2=lv_obj_create(obj1);
+    lv_obj_add_style(obj1, &style, LV_STATE_PRESSED);
 }
 
 // ........................................................................................................
