@@ -84,12 +84,9 @@ void vApplicationTickHook(void) {}
  */
 void create_hello_world_screen()
 {
-  lv_obj_t*obj=lv_obj_create(lv_scr_act());
-  lv_obj_set_align(obj, LV_ALIGN_CENTER);
-  lv_obj_set_style_border_color(obj, lv_color_hex(0xFF0000), LV_STATE_PRESSED);//边框颜色
-    lv_obj_set_style_border_width(obj, 2, LV_STATE_PRESSED);//边框宽度
-    lv_obj_set_style_border_opa(obj, LV_OPA_COVER, LV_STATE_PRESSED);//边框不透明度
-  lv_obj_t* label = lv_label_create(obj);
+ lv_obj_t * slider=lv_slider_create(lv_scr_act());
+ lv_obj_set_align(slider, LV_ALIGN_CENTER);
+ lv_obj_set_style_bg_color(slider, lv_color_hex(0xFF0000), LV_STATE_DEFAULT|LV_PART_INDICATOR);
 }
 
 // ........................................................................................................
