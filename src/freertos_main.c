@@ -16,11 +16,14 @@
 #include "hal/hal.h"
 #include <stdio.h>
 //部件定义
-static lv_obj_t * label_speed;
-static lv_obj_t * btn_up;
-static lv_obj_t * btn_down;
-static lv_obj_t * btn_stop;
-static int32_t speed_val=0;
+static int16_t val = 0;                         /* 当前值 */
+
+static const lv_font_t *font;                   /* 定义字体 */
+
+static lv_obj_t *label_load;                    /* 加载标题标签 */
+static lv_obj_t *label_per;                     /* 百分比标签 */
+static lv_obj_t *bar;                           /* 进度条 */
+
 
 static int32_t screen_width(void)
 {
@@ -60,82 +63,54 @@ void vApplicationMallocFailedHook(void)
  */
 void vApplicationIdleHook(void) {}
 
-static void lv_example_label(void)//速度提示
-{   //根据屏幕宽度选择合适的字体
-    // if(screen_width()<=320){
-    //     font=&lv_font_montserrat_10;
-    // }
-    // else if(screen_width()<=480){
-    //     font=&lv_font_montserrat_14;
-    // }
-    // else {
-    //     font=&lv_font_montserrat_20;
-    // }
-    label_speed=lv_label_create(lv_scr_act());
-    lv_obj_set_style_text_font(label_speed, &lv_font_montserrat_14, LV_PART_MAIN);
-    lv_label_set_text(label_speed, "Speed: 0 RPM");
-    lv_obj_align(label_speed, LV_ALIGN_TOP_MID, 0, screen_height()/12);
-
-}
-static void event_btn_cb(lv_event_t * e)
+static void timer_cb(lv_timer_t *timer)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    if(code==LV_EVENT_CLICKED){
-       lv_obj_t * btn = lv_event_get_target(e);
-       if(btn==btn_up){
-           speed_val+=10;
+    if(val < 100)                                                           /* 当前值小于100 */
+    {
+        val ++;
+        lv_bar_set_value(bar, val, LV_ANIM_ON);                             /* 设置当前值 */
+        lv_label_set_text_fmt(label_per, "%d %%", lv_bar_get_value(bar));   /* 获取当前值，更新显示 */
     }
-         else if(btn==btn_down){
-              speed_val-=10;
-         }
-         else if(btn==btn_stop){
-              speed_val=0;
-         }
-         char buf[20];
-         sprintf(buf, "Speed: %d RPM", speed_val);
-         lv_label_set_text(label_speed, buf);
+    else                                                                    /* 当前值大于等于100 */
+    {
+        lv_label_set_text(label_per, "finished!");                          /* 加载完成 */
+    }
 }
-}
-static void lv_example_btnup(void)//加速按钮
+static void lv_example_label(void)
 {
-    btn_up=lv_btn_create(lv_scr_act());
-    lv_obj_set_size(btn_up, screen_width()/4, screen_height()/6);
-    lv_obj_align(btn_up, LV_ALIGN_CENTER, -screen_width()/3, 0);
-    lv_obj_add_event_cb(btn_up, event_btn_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_t * label = lv_label_create(btn_up);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_14, LV_PART_MAIN);
-    lv_label_set_text(label, "SPEED UP");
-    lv_obj_set_align(label, LV_ALIGN_CENTER);
+    /* 根据活动屏幕宽度选择字体 */
+    if (screen_width() <= 480)
+    {
+        font = &lv_font_montserrat_14;
+    }
+    else
+    {
+        font = &lv_font_montserrat_20;
+    }
 
+    //加载标题标签 
+    label_load = lv_label_create(lv_scr_act());
+    lv_label_set_text(label_load, "LOADING...");
+    lv_obj_set_style_text_font(label_load, font, LV_STATE_DEFAULT);
+    lv_obj_align(label_load, LV_ALIGN_CENTER, 0, -screen_height() / 10);
+
+    //百分比标签 
+    label_per = lv_label_create(lv_scr_act());
+    lv_label_set_text(label_per, "%0");
+    lv_obj_set_style_text_font(label_per, font, LV_STATE_DEFAULT);
+    lv_obj_align(label_per, LV_ALIGN_CENTER, 0, screen_height() / 10);
 }
-static void lv_example_btndown(void)//减速按钮
+
+static void lv_example_bar(void)
 {
-    btn_down=lv_btn_create(lv_scr_act());
-    lv_obj_set_size(btn_down, screen_width()/4, screen_height()/6);
-    lv_obj_align(btn_down, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_add_event_cb(btn_down, event_btn_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_t * label = lv_label_create(btn_down);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_14, LV_PART_MAIN);
-    lv_label_set_text(label, "SPEED DOWN");
-    lv_obj_set_align(label, LV_ALIGN_CENTER);
-
+    bar = lv_bar_create(lv_scr_act());                            /* 创建进度条 */
+    lv_obj_set_align(bar, LV_ALIGN_CENTER);                       /* 设置位置 */
+    lv_obj_set_size(bar, screen_width() * 3 / 5, 20);             /* 设置大小 */
+    lv_obj_set_style_anim_time(bar, 100, LV_STATE_DEFAULT);       /* 设置动画时间 */
+    lv_timer_create(timer_cb, 100, NULL);                         /* 初始化定时器 */
 }
 
-static void lv_example_btn_stop(void)//停止按钮
-{
-    btn_stop=lv_btn_create(lv_scr_act());
-    lv_obj_set_size(btn_stop, screen_width()/4, screen_height()/6);
-    lv_obj_align(btn_stop, LV_ALIGN_CENTER, screen_width()/3, 0);
-    lv_obj_set_style_bg_color(btn_stop, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);//默认状态为红色
-    lv_obj_set_style_bg_color(btn_stop, lv_color_hex(0xCC0000), LV_PART_MAIN | LV_STATE_PRESSED);//按下时变暗
 
-    lv_obj_add_event_cb(btn_stop, event_btn_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_t * label = lv_label_create(btn_stop);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_14, LV_PART_MAIN);
-    lv_label_set_text(label, "STOP");
-    lv_obj_set_align(label, LV_ALIGN_CENTER);
-
-}
 // ........................................................................................................
 /**
  * @brief   Stack overflow hook
@@ -185,12 +160,10 @@ static void event_cb(lv_event_t * e)
 lv_obj_t * obj2;
 lv_obj_t * obj1;
 
-void create_creen()
+void create_screen()
 {
-    lv_example_label();
-    lv_example_btnup();
-    lv_example_btndown();
-    lv_example_btn_stop();
+       lv_example_label();                                           /* 加载提示标签 */
+    lv_example_bar();                                             /* 加载进度条 */
 
 }
 
@@ -213,7 +186,7 @@ void lvgl_task(void *pvParameters)
     /*Initialize the HAL (display, input devices, tick) for LVGL*/
     sdl_hal_init(320, 480);
     /* Show simple hello world screen */
-    create_creen();
+    create_screen();
 
     while (true){
         lv_timer_handler(); /* Handle LVGL tasks */
