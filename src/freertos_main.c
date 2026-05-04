@@ -84,12 +84,12 @@ void vApplicationTickHook(void) {}
  */
 void create_hello_world_screen()
 {
-  static lv_style_t style;
-    lv_style_init(&style);
-    lv_style_set_bg_color(&style, lv_color_hex(0xfb3b3b));
-
-    lv_obj_t*obj1=lv_obj_create(lv_scr_act());
-    lv_obj_add_style(obj1, &style, LV_STATE_PRESSED);
+  lv_obj_t*obj=lv_obj_create(lv_scr_act());
+  lv_obj_set_align(obj, LV_ALIGN_CENTER);
+  lv_obj_set_style_border_color(obj, lv_color_hex(0xFF0000), LV_STATE_PRESSED);//边框颜色
+    lv_obj_set_style_border_width(obj, 2, LV_STATE_PRESSED);//边框宽度
+    lv_obj_set_style_border_opa(obj, LV_OPA_COVER, LV_STATE_PRESSED);//边框不透明度
+  lv_obj_t* label = lv_label_create(obj);
 }
 
 // ........................................................................................................
