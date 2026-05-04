@@ -82,15 +82,17 @@ void vApplicationTickHook(void) {}
  * @param   None
  * @return  None
  */
-static void my_event_cb(lv_event_t * e)//同一个回调函数可以注册多个事件
+lv_obj_t * obj2;
+lv_obj_t * obj1;
+static void my_event_cb(lv_event_t * e)//多个事件回调函数可以共用一个事件处理函数，通过事件对象获取事件源对象，进行区分
 {
 
-    lv_event_code_t code=lv_event_get_code(e);
-    if(code==LV_EVENT_CLICKED){
-        printf("CLICKED\n");
+    lv_obj_t* obj=lv_event_get_target(e);
+    if(obj==obj1){
+        printf("obj1 clicked\n ");
     }
-    if(code==LV_EVENT_LONG_PRESSED){
-        printf("LONG PRESSED\n");
+    if(obj==obj2){
+        printf("obj2 long pressed\n ");
     }
 }
 void create_hello_world_screen()
@@ -98,8 +100,8 @@ void create_hello_world_screen()
  lv_obj_t * obj1=lv_obj_create(lv_scr_act());
 lv_obj_add_event_cb(obj1,my_event_cb,LV_EVENT_CLICKED,NULL);
 lv_obj_set_size(obj1, 200, 100);
-//  lv_obj_t * obj2=lv_obj_create(lv_scr_act());
-// lv_obj_add_event_cb(obj2,my_event_cb,LV_EVENT_LONG_PRESSED,NULL);
+ lv_obj_t * obj2=lv_obj_create(lv_scr_act());
+lv_obj_add_event_cb(obj2,my_event_cb,LV_EVENT_LONG_PRESSED,NULL);
 }
 
 // ........................................................................................................
