@@ -73,6 +73,14 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
  */
 void vApplicationTickHook(void) {}
 
+static void event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code==LV_EVENT_VALUE_CHANGED){
+        printf("Button is checked\n");
+
+}
+}
 // ........................................................................................................
 /**
  * @brief   Create Hello World screen
@@ -84,24 +92,14 @@ void vApplicationTickHook(void) {}
  */
 lv_obj_t * obj2;
 lv_obj_t * obj1;
-static void my_event_cb(lv_event_t * e)//多个事件回调函数可以共用一个事件处理函数，通过事件对象获取事件源对象，进行区分
-{
 
-    lv_obj_t* obj=lv_event_get_target(e);
-    if(obj==obj1){
-        printf("obj1 clicked\n ");
-    }
-    if(obj==obj2){
-        printf("obj2 long pressed\n ");
-    }
-}
 void create_hello_world_screen()
 {
- lv_obj_t * obj1=lv_obj_create(lv_scr_act());
-lv_obj_add_event_cb(obj1,my_event_cb,LV_EVENT_CLICKED,NULL);
-lv_obj_set_size(obj1, 200, 100);
- lv_obj_t * obj2=lv_obj_create(lv_scr_act());
-lv_obj_add_event_cb(obj2,my_event_cb,LV_EVENT_LONG_PRESSED,NULL);
+ lv_obj_t *btn= lv_btn_create(lv_scr_act());
+ lv_obj_set_size(btn, 120, 50);
+ lv_obj_set_align(btn, LV_ALIGN_CENTER);
+ lv_obj_add_flag(btn,LV_OBJ_FLAG_CHECKABLE);
+ lv_obj_add_event_cb(btn,event_cb,LV_EVENT_VALUE_CHANGED,NULL);
 }
 
 // ........................................................................................................
