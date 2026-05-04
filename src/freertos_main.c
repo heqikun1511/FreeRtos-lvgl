@@ -82,11 +82,24 @@ void vApplicationTickHook(void) {}
  * @param   None
  * @return  None
  */
+static void my_event_cb(lv_event_t * e)//同一个回调函数可以注册多个事件
+{
+
+    lv_event_code_t code=lv_event_get_code(e);
+    if(code==LV_EVENT_CLICKED){
+        printf("CLICKED\n");
+    }
+    if(code==LV_EVENT_LONG_PRESSED){
+        printf("LONG PRESSED\n");
+    }
+}
 void create_hello_world_screen()
 {
- lv_obj_t * slider=lv_slider_create(lv_scr_act());
- lv_obj_set_align(slider, LV_ALIGN_CENTER);
- lv_obj_set_style_bg_color(slider, lv_color_hex(0xFF0000), LV_STATE_DEFAULT|LV_PART_INDICATOR);
+ lv_obj_t * obj1=lv_obj_create(lv_scr_act());
+lv_obj_add_event_cb(obj1,my_event_cb,LV_EVENT_CLICKED,NULL);
+lv_obj_set_size(obj1, 200, 100);
+//  lv_obj_t * obj2=lv_obj_create(lv_scr_act());
+// lv_obj_add_event_cb(obj2,my_event_cb,LV_EVENT_LONG_PRESSED,NULL);
 }
 
 // ........................................................................................................
