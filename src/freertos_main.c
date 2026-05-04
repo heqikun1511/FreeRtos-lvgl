@@ -22,8 +22,10 @@ static const lv_font_t *font;                   /* 定义字体 */
 
 static lv_obj_t *label_load;                    /* 加载标题标签 */
 static lv_obj_t *label_per;                     /* 百分比标签 */
-static lv_obj_t *bar;                           /* 进度条 */
+static lv_obj_t *bar;   
+static lv_obj_t *obj;                       /* 进度条 */
 
+static void event_led_cd(lv_event_t * e);
 
 static int32_t screen_width(void)
 {
@@ -50,6 +52,62 @@ void vApplicationMallocFailedHook(void)
     printf("Malloc failed! Available heap: %ld bytes\n", xPortGetFreeHeapSize());
     for( ;; );
 }
+static void lv_example_led1(){
+    if(screen_width()<480){
+        font = &lv_font_montserrat_14;
+    }
+    else{
+
+
+        font = &lv_font_montserrat_28;
+    }
+    obj=lv_obj_create(lv_scr_act());
+    lv_obj_set_size(obj, screen_width()*5/6,screen_height()*3/5);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0xefefef), LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    //创建LED1
+    lv_obj_t * led1 = lv_led_create(obj);
+    lv_obj_set_size(led1,screen_width()/5,screen_height()/5);
+    lv_obj_align(led1, LV_ALIGN_CENTER, -screen_width()/5, -screen_height()/15);
+    lv_led_set_color(led1, lv_color_hex(0xFF0000));    
+    lv_led_off(led1);
+    lv_obj_add_event_cb(led1, event_led_cd, LV_EVENT_CLICKED, NULL);
+
+    //添加标签
+    lv_obj_t * label1=lv_label_create(obj);
+    lv_label_set_text(label1,"ROOM 1");
+    lv_obj_set_style_text_font(label1,font,LV_STATE_DEFAULT);
+    lv_obj_align_to(label1, led1, LV_ALIGN_OUT_BOTTOM_MID, 0, screen_height()/15);
+
+}
+
+//创建LED2
+static void lv_example_led2(){
+    //创建LED1
+    lv_obj_t * led2 = lv_led_create(obj);
+    lv_obj_set_size(led2,screen_width()/5,screen_height()/5);
+    lv_obj_align(led2, LV_ALIGN_CENTER,  screen_width()/5, -screen_height()/15);
+    lv_led_set_color(led2, lv_color_hex(0xFF0000)); 
+    lv_led_off(led2);
+    lv_obj_add_event_cb(led2, event_led_cd, LV_EVENT_CLICKED, NULL);
+
+
+
+    //添加标签
+    lv_obj_t * label2=lv_label_create(obj);
+    lv_label_set_text(label2,"ROOM 2");
+    lv_obj_set_style_text_font(label2,font,LV_STATE_DEFAULT);
+    lv_obj_align_to(label2, led2, LV_ALIGN_OUT_BOTTOM_MID, 0, screen_height()/15);
+
+}
+static void event_led_cd(lv_event_t * e)
+{
+    lv_obj_t *led = lv_event_get_target(e);
+    lv_led_toggle(led);
+}
+
+
 
 // ........................................................................................................
 /**
@@ -63,52 +121,7 @@ void vApplicationMallocFailedHook(void)
  */
 void vApplicationIdleHook(void) {}
 
-static void timer_cb(lv_timer_t *timer)
-{
-    if(val < 100)                                                           /* 当前值小于100 */
-    {
-        val ++;
-        lv_bar_set_value(bar, val, LV_ANIM_ON);                             /* 设置当前值 */
-        lv_label_set_text_fmt(label_per, "%d %%", lv_bar_get_value(bar));   /* 获取当前值，更新显示 */
-    }
-    else                                                                    /* 当前值大于等于100 */
-    {
-        lv_label_set_text(label_per, "finished!");                          /* 加载完成 */
-    }
-}
-static void lv_example_label(void)
-{
-    /* 根据活动屏幕宽度选择字体 */
-    if (screen_width() <= 480)
-    {
-        font = &lv_font_montserrat_14;
-    }
-    else
-    {
-        font = &lv_font_montserrat_20;
-    }
 
-    //加载标题标签 
-    label_load = lv_label_create(lv_scr_act());
-    lv_label_set_text(label_load, "LOADING...");
-    lv_obj_set_style_text_font(label_load, font, LV_STATE_DEFAULT);
-    lv_obj_align(label_load, LV_ALIGN_CENTER, 0, -screen_height() / 10);
-
-    //百分比标签 
-    label_per = lv_label_create(lv_scr_act());
-    lv_label_set_text(label_per, "%0");
-    lv_obj_set_style_text_font(label_per, font, LV_STATE_DEFAULT);
-    lv_obj_align(label_per, LV_ALIGN_CENTER, 0, screen_height() / 10);
-}
-
-static void lv_example_bar(void)
-{
-    bar = lv_bar_create(lv_scr_act());                            /* 创建进度条 */
-    lv_obj_set_align(bar, LV_ALIGN_CENTER);                       /* 设置位置 */
-    lv_obj_set_size(bar, screen_width() * 3 / 5, 20);             /* 设置大小 */
-    lv_obj_set_style_anim_time(bar, 100, LV_STATE_DEFAULT);       /* 设置动画时间 */
-    lv_timer_create(timer_cb, 100, NULL);                         /* 初始化定时器 */
-}
 
 
 // ........................................................................................................
@@ -162,13 +175,13 @@ lv_obj_t * obj1;
 
 void create_screen()
 {
-       lv_example_label();                                           /* 加载提示标签 */
-    lv_example_bar();                                             /* 加载进度条 */
-
+    lv_example_led1();
+    lv_example_led2();
+    
 }
 
 // ........................................................................................................
-/**
+/**spinner
  * @brief   LVGL task
  *
  * This task initializes LVGL and runs the main loop, periodically calling the LVGL task handler.
